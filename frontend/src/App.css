@@ -1,0 +1,251 @@
+.user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto 30px;
+}
+
+.user-form input {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.role-dropdown {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.role-dropdown summary {
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.role-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 12px 12px;
+  border-top: 1px solid var(--border);
+}
+
+.edit-box {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto 30px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.role-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.user-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;   /* 0 yerine "0 auto": üst-alt 0, sol-sağ otomatik */
+  width: 100%;
+  max-width: 800px;
+  max-height: 400px; /* Yüksekliği sınırlamak için */
+  overflow-y: auto;  /* Yüksekliği aştığında kaydırma çubuuğ görünsün */
+}
+
+.user-list li {
+  display: grid;
+  /* 3 sütun düzeni: İsim (200px), Email (1fr - kalan alan), Unvan (180px) */
+  grid-template-columns: 200px 1fr 180px auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border); /* Dark theme için daha uygun gri */
+  color: var(--text);
+}
+
+/* Opsiyonel: Hover efekti ve tatlı bir kart görünümü */
+.user-list li:hover {
+  background-color: var(--hover);
+  border-radius: 6px;
+}
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-box {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 360px;
+  padding: 32px 28px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.login-box h2 {
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.login-box input {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.login-box button {
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.delete{
+  cursor: pointer;
+}
+
+.submit{
+  cursor: pointer;
+}
+
+.error-text {
+  color: #dc2626;     
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.profile-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-box {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 360px;
+  padding: 32px 28px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.profile-box h2 {
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+.profile-box input {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.profile-box button {
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.quit{
+  position: fixed;
+  top: 16px;
+  right: 30px; /* Çıkış butonunun sağında */
+  padding: 20px 22px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 1.5rem; /* ikon boyutu */
+  color: var(--text);
+}
+
+.home-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: repeat(2, 250px); /* 2 sütun, kutu genişliği kadar */
+  gap: 30px;
+  justify-content: center; /* sütunları yatayda ortala */
+  align-content: center;   /* satırları dikeyde ortala */
+}
+
+
+.home-box {
+  width: 250px;
+  height: 250px;
+  background-color: #10b981; /* Yeşil */
+  border-radius: 8px;
+  border: 2px solid #059669;
+  flex-direction: column;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease; /* büyüme yumuşak olsun */
+  cursor: pointer;
+
+}
+
+.home-box:hover {
+  transform: scale(1.1); /* %10 büyür */
+}
+
+.profile-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 80px; /* Çıkış butonunun sağında */
+  padding: 20px 22px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 1.5rem; /* ikon boyutu */
+  color: var(--text);
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.stat-card.active {
+    border-color: #a855f7; /* Örnek olarak mor renk */
+  }
+
+.notification-list { list-style: none; padding: 0; max-width: 600px; margin: 0 auto; }
+.notification-list div { display: flex; flex-direction: column; gap: 4px; padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; }
+.notification-list div.unread { border-left: 3px solid #a855f7; font-weight: bold; }
