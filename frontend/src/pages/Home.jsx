@@ -1,7 +1,7 @@
 import React from 'react'
 import { GiPlagueDoctorProfile } from "react-icons/gi";
 import { PiUsersFourFill } from "react-icons/pi";
-import { MdNotificationsActive } from "react-icons/md";
+import { HiOutlineChatAlt } from "react-icons/hi";
 import { IoSettingsSharp } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
 
@@ -16,8 +16,8 @@ function Home() {
       <div className="home-box" onClick={() => navigate('/users')}>
         <PiUsersFourFill color="white" size={100} />
       </div>
-      <div className="home-box" onClick={() => navigate('/notifications')}>
-        <MdNotificationsActive color="white" size={100} />
+      <div className="home-box" onClick={() => navigate('/chat')}>
+        <HiOutlineChatAlt color="white" size={100} />
       </div>
       <div className="home-box" onClick={() => navigate('/settings')}>
         <IoSettingsSharp color="white" size={100} />

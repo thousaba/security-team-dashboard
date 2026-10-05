@@ -10,6 +10,7 @@ A management panel for a security team, built with a Laravel API and a React fro
 - Role distribution statistics cards
 - Profile page: update name and password
 - Notifications: list and mark as read
+- Real-time group chat: one shared room for all logged-in users, delivered over WebSockets (Laravel Reverb)
 - Light and dark theme
 
 ## Roles
@@ -27,8 +28,8 @@ A user can have more than one role.
 
 ## Tech stack
 
-- **Backend:** PHP 8.3+, Laravel 13, Laravel Sanctum, PostgreSQL
-- **Frontend:** React 19, React Router 7, Vite, Tailwind CSS 4, Axios
+- **Backend:** PHP 8.3+, Laravel 13, Laravel Sanctum, Laravel Reverb (WebSocket server), PostgreSQL
+- **Frontend:** React 19, React Router 7, Vite, Axios, Laravel Echo
 
 ## Requirements
 
@@ -69,6 +70,14 @@ Start the API (`http://localhost:8000`):
 php artisan serve
 ```
 
+Start the WebSocket server (Reverb, `127.0.0.1:8080`) in a second terminal. The chat needs it to deliver messages in real time:
+
+```bash
+php artisan reverb:start
+```
+
+The Reverb settings (`REVERB_*`) and `BROADCAST_CONNECTION=reverb` are already added to `.env` by `php artisan install:broadcasting`. If you set the project up from scratch, make sure they exist in your `.env` too.
+
 ### 2. First admin user
 
 The project ships without sample data. Create an admin so you can log in:
@@ -90,13 +99,28 @@ The password is hashed automatically. You can change it later from the Profile p
 
 ### 3. Frontend
 
+Create `frontend/.env` with the Reverb connection values. The frontend is a separate Vite project, so it does not read the root `.env`, and `${...}` references are not resolved. Copy the real values, with `REVERB_APP_KEY` from the root `.env`:
+
+```env
+VITE_REVERB_APP_KEY=your-reverb-app-key
+VITE_REVERB_HOST=127.0.0.1
+VITE_REVERB_PORT=8080
+VITE_REVERB_SCHEME=http
+```
+
+Use `127.0.0.1` instead of `localhost`. `localhost` can resolve to the IPv6 address `::1` first, and Reverb only listens on IPv4.
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
+Restart `npm run dev` whenever you change `frontend/.env`.
+
 The frontend talks to the API at `http://localhost:8000/api`, set in `frontend/src/api.js`.
+
+To try the chat, log in as two different users (for example one normal window and one private window) and send a message from one of them. It should appear in the other without a refresh.
 
 ## API endpoints
 
@@ -112,9 +136,15 @@ All endpoints live under `/api`. Every endpoint except login needs an `Authoriza
 | GET, PUT | `/profile` | authenticated |
 | GET | `/notifications` | authenticated |
 | PUT | `/notifications/{id}/read` | authenticated |
+| GET | `/chat` | authenticated |
+| POST | `/chat` | authenticated |
 | POST | `/users` | admin |
 | PUT | `/users/{user}` | admin |
 | DELETE | `/users/{user}` | admin |
+
+Channel authorization for WebSockets is served outside `/api`, at `POST /broadcasting/auth` (protected with `auth:sanctum`). Messages are broadcast on the private channel `chat` with the `MessageSent` event. Chat messages cannot be deleted.
+
+For a step-by-step write-up of how the real-time chat was built, including the problems we hit (CORS, IPv6, React StrictMode), see [websocket.md](websocket.md).
 
 ## Learning notes
 

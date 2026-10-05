@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\MessageController;
 
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -19,8 +20,9 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::put('/profile', [ProfileController::class, 'update']);
   Route::get('/stats', [StatsController::class, 'index']);
   Route::get('/notifications', [NotificationController::class, 'index']);
- Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
-
+  Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+  Route::get('/chat', [MessageController::class, 'index']);  
+  Route::post('/chat', [MessageController::class, 'store']);
 
 
 

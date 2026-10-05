@@ -13,13 +13,14 @@ const DEFAULT_ITEMS = [
   'Ana Sayfa',
   'Profil',
   'Kullanıcılar',
+  'Mesajlar',
   'Bildirimler',
   'Ayarlar',
 ];
 
 const LineSidebar = ({
   items = DEFAULT_ITEMS,
-  accentColor = '#A855F7',
+  accentColor = '#23dd61',
   textColor = '#c4c4c4',
   markerColor = '#6c6c6c',
   showIndex = true,

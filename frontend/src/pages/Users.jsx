@@ -167,19 +167,6 @@ function Users() {
         </div>
       )}
 
-      <ul className='user-list'>
-        <h3>Kullanıcı Listesi</h3>
-        {visibleUsers.map(user => (
-          <li key={user.id}>
-            <strong>{user.name}</strong>
-            <span>{user.email}</span>
-            <span>{user.department?.label}</span>
-            <button className='delete' type='button' onClick={() => handleDelete(user)}>Sil</button>
-            <button className='delete' type='button' onClick={() => handleEdit(user)}>Düzenle</button>
-          </li>
-        ))}
-      </ul>
-
       {stats && (
         <div className='stats'>
           <div className='stat-card'
@@ -198,6 +185,19 @@ function Users() {
           ))}
         </div>
       )}
+
+      <ul className='user-list'>
+        <h3>Kullanıcı Listesi</h3>
+        {visibleUsers.map(user => (
+          <li key={user.id}>
+            <strong>{user.name}</strong>
+            <span>{user.email}</span>
+            <span>{user.department?.label}</span>
+            <button className='delete' type='button' onClick={() => handleDelete(user)}>Sil</button>
+            <button className='delete' type='button' onClick={() => handleEdit(user)}>Düzenle</button>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }

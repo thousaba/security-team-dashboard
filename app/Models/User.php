@@ -37,9 +37,16 @@ class User extends Authenticatable
             'department' => Department::class,
         ];
     }
+    
     public function userNotifications(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(UserNotification::class);
     }
+
+    public function messages(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Message::class);
+    }
+
 }
 
