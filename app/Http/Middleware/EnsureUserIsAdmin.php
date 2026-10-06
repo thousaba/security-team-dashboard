@@ -18,7 +18,7 @@ class EnsureUserIsAdmin
             return $next($request); // İzin ver, isteğe devam et
         }
 
-        // 2. Değilse 403 Forbidden cevabı fırlat
+        // Değilse 403 Forbidden cevabı fırlat
         return response()->json([
             'message' => 'Bu işlem için yetkiniz yok!'
         ], 403);

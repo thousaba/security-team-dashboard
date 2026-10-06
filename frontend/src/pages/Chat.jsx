@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import api from '../api';
 import createEcho from '../echo';
+import { useOutletContext } from 'react-router-dom';
 
 function Chat() {
   const [messages, setMessages] = useState([]);
@@ -8,6 +9,7 @@ function Chat() {
   const echoRef = useRef(null);
   const [me, setMe] = useState(null);
   const bottomRef = useRef(null);
+  const {echo} = useOutletContext()
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -25,20 +27,21 @@ function Chat() {
   }, [])
 
   useEffect(()=> {
-    const echo = createEcho()
-    echoRef.current = echo
+    if (!echo) return
 
-    echo.private('chat').listen('MessageSent', (e)=> {
+    const handler = (e) => {
       setMessages(prev => prev.some(m => m.id === e.id) ? prev : [...prev, e])
-    })
-    return () => echo.disconnect()
+    }
+    const channel = echo.private('chat')
+    channel.listen('MessageSent', handler)
 
-  }, [])
+    return () => channel.stopListening('MessageSent', handler)
+  }, [echo])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const response = await api.post('/chat', {content: text}, {
-      headers: { 'X-Socket-ID': echoRef.current?.socketId() },
+      headers: { 'X-Socket-ID': echo?.socketId() },
     });
     setMessages(prev => [...prev, response.data]);
     setText('');

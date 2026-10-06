@@ -32,6 +32,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'chat_last_read_at' => 'datetime',
             'password' => 'hashed',
             'roles' => AsEnumCollection::of(UserRole::class),
             'department' => Department::class,

@@ -4,7 +4,8 @@ A management panel for a security team, built with a Laravel API and a React fro
 
 ## Features
 
-- Token-based login and logout (Laravel Sanctum)
+- Cookie-based session login and logout (Laravel Sanctum SPA authentication, HttpOnly session cookie, CSRF protection)
+- Protected routes: visitors who are not logged in are redirected to the login page
 - Role-based authorization: adding, deleting and updating users is limited to the `admin` role
 - User management: list, create, edit roles, filter by role
 - Role distribution statistics cards
@@ -78,6 +79,14 @@ php artisan reverb:start
 
 The Reverb settings (`REVERB_*`) and `BROADCAST_CONNECTION=reverb` are already added to `.env` by `php artisan install:broadcasting`. If you set the project up from scratch, make sure they exist in your `.env` too.
 
+Authentication uses a cookie session, so Sanctum needs to know which frontend address is allowed to receive stateful cookies. Add it to `.env` (the port is required):
+
+```env
+SANCTUM_STATEFUL_DOMAINS="localhost:5173"
+```
+
+`config/cors.php` must also have `'supports_credentials' => true`. Run `php artisan config:clear` after changing `.env` or config files.
+
 ### 2. First admin user
 
 The project ships without sample data. Create an admin so you can log in:
@@ -124,7 +133,11 @@ To try the chat, log in as two different users (for example one normal window an
 
 ## API endpoints
 
-All endpoints live under `/api`. Every endpoint except login needs an `Authorization: Bearer <token>` header.
+All endpoints live under `/api`. Authentication is a cookie session, not a bearer token: the browser sends the HttpOnly `laravel-session` cookie by itself, and the frontend sends the `X-XSRF-TOKEN` header (axios `withCredentials` and `withXSRFToken`).
+
+Before `POST /login`, the frontend must call `GET /sanctum/csrf-cookie` (served outside `/api`) to get the `XSRF-TOKEN` cookie, otherwise the login request fails with `419 CSRF token mismatch`. Every endpoint except login needs an authenticated session (otherwise `401`).
+
+Open the app at `http://localhost:5173`. Using `127.0.0.1` instead of `localhost` for the page breaks the cookie, because the two are different sites.
 
 | Method | Path | Access |
 |---|---|---|
@@ -142,9 +155,11 @@ All endpoints live under `/api`. Every endpoint except login needs an `Authoriza
 | PUT | `/users/{user}` | admin |
 | DELETE | `/users/{user}` | admin |
 
-Channel authorization for WebSockets is served outside `/api`, at `POST /broadcasting/auth` (protected with `auth:sanctum`). Messages are broadcast on the private channel `chat` with the `MessageSent` event. Chat messages cannot be deleted.
+Channel authorization for WebSockets is served outside `/api`, at `POST /broadcasting/auth` (protected with the `api` and `auth:sanctum` middleware, so the cookie session works). Messages are broadcast on the private channel `chat` with the `MessageSent` event. Chat messages cannot be deleted.
 
 For a step-by-step write-up of how the real-time chat was built, including the problems we hit (CORS, IPv6, React StrictMode), see [websocket.md](websocket.md).
+
+For why and how the login moved from bearer tokens in `localStorage` to an HttpOnly cookie session (including the 419 CSRF problem and the security trade-offs), see [cookie-auth.md](cookie-auth.md).
 
 ## Learning notes
 

@@ -78,7 +78,7 @@ Route::post('/chat', [MessageController::class, 'store']);
 `app/Http/Controllers/MessageController.php`:
 
 - **`index`**: `Message::with('user')->oldest()->get()`. Tüm mesajlar (kullanıcıya özel değil, grup sohbeti). `with('user')` N+1 sorgu problemini önler.
-- **`store`**: `content` doğrulanır (`required`, `string`, `max:500`), mesaj `$request->user()->messages()->create($data)` ile kaydedilir. Bu sayede `user_id` istekten değil, token'ın sahibinden gelir; başka biri adına mesaj yazılamaz.
+- **`store`**: `content` doğrulanır (`required`, `string`, `max:500`), mesaj `$request->user()->messages()->create($data)` ile kaydedilir. Bu sayede `user_id` istekten değil, giriş yapmış kullanıcının oturumundan gelir; başka biri adına mesaj yazılamaz.
 
 ## Aşama 4: Frontend, statik arayüzden API'ye
 
@@ -154,22 +154,24 @@ Broadcast::channel('chat', function ($user) {
 
 Giriş yapmış herkes `chat` kanalına girebilir.
 
-`bootstrap/app.php`: kanal route'ları Bearer token (Sanctum) ile korunacak şekilde kaydedildi. `withRouting` içindeki `channels:` satırı kaldırılıp yerine `withBroadcasting` eklendi:
+`bootstrap/app.php`: kanal route'ları Sanctum ile korunacak şekilde kaydedildi. `withRouting` içindeki `channels:` satırı kaldırılıp yerine `withBroadcasting` eklendi:
 
 ```php
 ->withBroadcasting(
     __DIR__.'/../routes/channels.php',
-    ['middleware' => ['auth:sanctum']],
+    ['middleware' => ['api', 'auth:sanctum']],
 )
 ```
 
-Bu, `/broadcasting/auth` route'unu `auth:sanctum` middleware'i ile açar. Varsayılan hâlde bu route cookie/oturum (`web`) tabanlıdır ve token ile çalışmaz. Kontrol:
+Bu, `/broadcasting/auth` route'unu `api` ve `auth:sanctum` middleware'leriyle açar. `api` grubu, `statefulApi()`'nin eklediği oturum (cookie) middleware'ini taşır. Grup olmazsa route oturumu hiç göremez ve "giriş yapmamış" sanar (401). Kontrol:
 
 ```
 php artisan route:list --path=broadcasting -v
 ```
 
 Çıktıda `broadcasting/auth` ve `Authenticate:sanctum` görünmeli.
+
+> Not: Bu sohbet ilk yazıldığında giriş Bearer token ile yapılıyordu ve burada yalnızca `['auth:sanctum']` vardı. Kimlik doğrulama sonradan HttpOnly cookie oturumuna geçirildi, bu yüzden `api` grubu eklendi. Ayrıntı: [cookie-auth.md](cookie-auth.md).
 
 ### 5.5 Frontend: Echo
 
@@ -192,6 +194,8 @@ VITE_REVERB_SCHEME=http
 **`frontend/src/echo.js`**: Echo'yu üreten bir fonksiyon:
 
 ```js
+import api from './api'
+
 export default function createEcho() {
   return new Echo({
     broadcaster: 'reverb',
@@ -201,14 +205,25 @@ export default function createEcho() {
     wssPort: import.meta.env.VITE_REVERB_PORT,
     forceTLS: import.meta.env.VITE_REVERB_SCHEME === 'https',
     enabledTransports: ['ws', 'wss'],
-    authEndpoint: 'http://localhost:8000/broadcasting/auth',
-    auth: { headers: { Authorization: `Bearer ${localStorage.getItem('token')}`, Accept: 'application/json' } },
+    authorizer: (channel) => ({
+      authorize: (socketId, callback) => {
+        api.post('http://localhost:8000/broadcasting/auth', {
+          socket_id: socketId,
+          channel_name: channel.name,
+        })
+          .then(response => callback(false, response.data))
+          .catch(error => callback(true, error))
+      },
+    }),
   })
 }
 ```
 
-- Fonksiyon olarak yazıldı, çünkü token giriş yapıldıktan sonra oluşur. Dosya seviyesinde `new Echo(...)` uygulama açılırken, token yokken çalışır ve başlık `Bearer null` olarak kalırdı
-- `authEndpoint` tam adres: route `/broadcasting/auth`, `/api/broadcasting/auth` **değil** (`api.js`'in `baseURL`'indeki `/api` öneki burada geçerli değil)
+- Yetkilendirme isteğini Echo/pusher-js kendisi atarsa, `api.js`'teki `withCredentials` ve `withXSRFToken` ayarları o isteğe uygulanmaz ve cookie/CSRF gitmez. Bu yüzden `authorizer` ile isteği kendi `api` örneğimizle atıyoruz. `socket_id` ve `channel_name`, Laravel'in `/broadcasting/auth`'tan beklediği iki alandır
+- Adres tam yazıldı: route `/broadcasting/auth`, `/api/broadcasting/auth` **değil** (`api.js`'in `baseURL`'indeki `/api` öneki burada geçerli değil)
+- Echo bir fonksiyon (`createEcho`) olarak dışa aktarılıyor, `Chat.jsx` açılınca çağrılıyor. Dosya seviyesinde `new Echo(...)` uygulama açılırken, kullanıcı daha giriş yapmamışken bağlanmaya çalışırdı
+
+> Not: İlk sürümde burada `authEndpoint` ve `auth: { headers: { Authorization: 'Bearer ...' } }` vardı (giriş o zaman Bearer token ile yapılıyordu). Cookie oturumuna geçince kaldırıldı, bkz. [cookie-auth.md](cookie-auth.md).
 
 ### 5.6 Chat.jsx'te dinleme
 
@@ -284,7 +299,8 @@ cd frontend && npm run dev        # React, 5173
 | Belirti | Bakılacak yer |
 |---|---|
 | WebSocket bağlanmıyor | `reverb:start` çalışıyor mu, `frontend/.env` doğru mu, `npm run dev` yeniden başladı mı |
-| `/broadcasting/auth` 401 | Token başlığı gitmiyor, giriş yapılmış mı |
+| `/broadcasting/auth` 401 | Giriş yapılmış mı, `withBroadcasting` middleware'inde `api` var mı (oturum başlamıyor olabilir), istek `authorizer` ile `api` örneği üzerinden mi gidiyor |
+| `/broadcasting/auth` 419 | CSRF başlığı gitmiyor: `authorizer` içinde ham axios/pusher değil `api` örneği kullanılmalı (`withXSRFToken: true`) |
 | `/broadcasting/auth` 403 | `routes/channels.php`'deki kanal kuralı reddediyor |
 | `/broadcasting/auth` CORS hatası | `config/cors.php` → `paths` |
 | Kendi mesajın iki kere görünüyor | `X-Socket-ID` başlığı isteğe gidiyor mu (Network sekmesi) |

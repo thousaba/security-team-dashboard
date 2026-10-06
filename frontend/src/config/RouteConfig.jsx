@@ -7,12 +7,15 @@ import Profile from '../pages/Profile';
 import Settings from '../pages/Settings';
 import Users from '../pages/Users';
 import Chat from '../pages/Chat';
+import ProtectedRoute from '../components/ProtectedRoute';
 
 function RouteConfig () {
     return (
       <Routes>
         <Route path='/' element={<Navigate to='/home' replace />} />
         <Route path='/login' element={<Login />} />
+        
+        <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
           <Route path='/home' element={<Home />} />
           <Route path='/profile' element={<Profile />} />
@@ -20,6 +23,7 @@ function RouteConfig () {
           <Route path='/notifications' element={<Notifications />} />
           <Route path='/settings' element={<Settings />} />
           <Route path='/chat' element={<Chat />} />
+        </Route>
         </Route>
       </Routes>
     )

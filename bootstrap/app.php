@@ -15,13 +15,13 @@ return Application::configure(basePath: dirname(__DIR__))
 
     ->withBroadcasting(
     __DIR__.'/../routes/channels.php',
-    ['middleware' => ['auth:sanctum']],
+    ['middleware' => ['api', 'auth:sanctum']],
     )
 
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo(fn (Request $request) => $request->is('api/*') ? null : '/login');
         $middleware->alias(['admin' => \App\Http\Middleware\EnsureUserIsAdmin::class]);
-
+        $middleware->statefulApi();
 
     })
     ->withExceptions(function (Exceptions $exceptions): void {

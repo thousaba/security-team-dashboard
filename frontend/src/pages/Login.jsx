@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
-import axios from 'axios'
+import api from '../api';
 
 const Login = () => {
 
@@ -12,8 +12,8 @@ const Login = () => {
     setError('')
 
     try {
-      const response = await axios.post('http://localhost:8000/api/login', formData)
-      localStorage.setItem('token', response.data.token)
+      await api.get('http://localhost:8000/sanctum/csrf-cookie')
+      await api.post('/login', formData)
       navigate('/')
     } catch (err) {
       setError(err.response?.data?.message || 'Giriş başarısız oldu!')

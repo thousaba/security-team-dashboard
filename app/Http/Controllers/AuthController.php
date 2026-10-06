@@ -3,8 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -14,26 +13,28 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::where('email', $validated['email'])->first();
-
-        if (!$user || !Hash::check($validated['password'], $user->password)){
+        if (!Auth::attempt($validated)){
             return response()->json([
                 'message' => 'E posta veya Şifre Hatalı!'
             ], 401);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $request->session()->regenerate();
         
         return response()->json([
             'message' => 'Giriş Başarılı',
-            'user' => $user,
-            'token' => $token,
+            'user' => Auth::user(),
         ]);
     }
 
 
     public function logout(Request $request){
-        $request->user()->currentAccessToken()->delete();
+        Auth::guard('web')->logout();
+        
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
         return response()->json(['message'=> 'Çıkış Yapıldı']);
+
     }
 }

@@ -23,6 +23,8 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
   Route::get('/chat', [MessageController::class, 'index']);  
   Route::post('/chat', [MessageController::class, 'store']);
+  Route::get('/chat/unread', [MessageController::class, 'unread']);
+  Route::post('/chat/read', [MessageController::class, 'read']);
 
 
 

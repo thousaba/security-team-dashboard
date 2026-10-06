@@ -56,7 +56,7 @@
 .line-sidebar__index {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   margin-right: 0.6rem;
-  font-size: 0.85em;
+  font-size: 1.15 em;
   opacity: calc(0.55 + var(--effect, 0) * 0.45);
 }
 

@@ -18,8 +18,11 @@ const DEFAULT_ITEMS = [
   'Ayarlar',
 ];
 
+
 const LineSidebar = ({
   items = DEFAULT_ITEMS,
+  icons = [],
+  badges = [],
   accentColor = '#23dd61',
   textColor = '#c4c4c4',
   markerColor = '#6c6c6c',
@@ -162,8 +165,11 @@ const LineSidebar = ({
           >
             {showMarker && <span className="line-sidebar__marker" aria-hidden="true" />}
             <span className="line-sidebar__label">
-              {showIndex && <span className="line-sidebar__index">{String(index + 1).padStart(2, '0')}</span>}
-              <span className="line-sidebar__text">{label}</span>
+              {icons[index] && <span className="line-sidebar__index">{icons[index]}</span>}
+                <span className="line-sidebar__text">{label}</span>
+              {badges[index] > 0 && (
+                <span className="line-sidebar__badge">{badges[index] > 99 ? '99+' : badges[index]}</span>
+              )}
             </span>
           </li>
         ))}
