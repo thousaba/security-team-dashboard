@@ -33,4 +33,5 @@ class ProfileController extends Controller
 
         return new UserResource($user);
     }
+    
 }

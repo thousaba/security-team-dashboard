@@ -25,4 +25,11 @@ class NotificationController extends Controller
 
     }
 
+    public function unreadCount (Request $request)
+    {
+        $count = $request->user()->userNotifications()->whereNull('read_at')->count();
+
+        return response()->json(['count' => $count]);
+    }
+
 }

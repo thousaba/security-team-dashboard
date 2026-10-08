@@ -18,14 +18,16 @@ A management panel for a security team, built with a Laravel API and a React fro
 
 | Role | Department |
 |---|---|
-| `admin` | none |
-| `soc_analyst` | SOC / Threat Hunting |
-| `detection_engineer` | SOC / Threat Hunting |
-| `malware_analyst` | Malware Analysis |
-| `standard_user` | Human Resources |
-| `software_developer` | Software Development |
+| `admin` | System Management |
+| `soc_manager` | SOC |
+| `soc_analyst` | SOC |
+| `incident_responder` | SOC |
+| `threat_hunter` | Threat Intelligence & Hunting |
+| `detection_engineer` | Detection Engineering |
+| `malware_analyst` | Malware & Forensics |
+| `grc_analyst` | GRC (Governance, Risk & Compliance) |
 
-A user can have more than one role.
+Everyone except the single system administrator (`admin`) is a regular team member with one of the job roles above; there is no separate "standard user" role. A user can have more than one role, and the department is derived from the roles (the first role that has a department).
 
 ## Tech stack
 

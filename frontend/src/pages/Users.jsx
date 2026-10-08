@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react'
 import api from '../api';
 import '../App.css'
+import CreateUser from '../components/CreateUser';
 
 function Users() {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', roles: [] });
   const [options, setOptions] = useState({ roles: [] });
   const [editingUser, setEditingUser] = useState(null);
   const [editRoles, setEditRoles] = useState([]);
   const [stats, setStats] = useState(null);
   const [selectedRole, setSelectedRole] = useState(null);
+  const [showAdd, setShowAdd] = useState(false);
+  const [error, setError] = useState('')
+
 
   useEffect(() => {
     api.get('/options')
@@ -34,21 +35,6 @@ function Users() {
       .catch(error => console.log('HATA:', error))
   }, [])
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await api.post('/users', formData)
-      setUsers(prev => [...prev, response.data]);
-      setFormData({ name: '', email: '', password: '', roles: [] });
-    } catch (err) {
-      setError(err.response?.data?.message || 'Ekleme başarısız oldu!');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDelete = async (user) => {
     if (!window.confirm(`${user.name} silinsin mi?`)) return;
@@ -81,63 +67,14 @@ function Users() {
     : users;
 
   return (
-    <div>
-      <form onSubmit={handleSubmit} className='user-form'>
-        <h3>Yeni Kullanıcı Ekle</h3>
-
-        <input
-          type='text'
-          placeholder='Ad Soyad'
-          value={formData.name}
-          maxLength={64}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required
+    <div className='users-page'>
+      {showAdd && (
+        <CreateUser
+          roleOptions={options.roles}
+          onCreated={(user) => setUsers(prev => [...prev, user])}
+          onClose={() => setShowAdd(false)}
         />
-        <input
-          type='email'
-          placeholder='Mail Adresi'
-          value={formData.email}
-          maxLength={255}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          required
-        />
-        <input
-          type='password'
-          placeholder='Şifre Giriniz...'
-          value={formData.password}
-          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          required
-        />
-        <details className='role-dropdown'>
-          <summary>
-            {formData.roles.length > 0
-              ? `${formData.roles.length} rol seçili`
-              : 'Rol seçiniz'}
-          </summary>
-          <div className='role-options'>
-            {options.roles.map(r => (
-              <label key={r.value}>
-                <input
-                  type="checkbox"
-                  checked={formData.roles.includes(r.value)}
-                  onChange={() => setFormData({
-                    ...formData,
-                    roles: formData.roles.includes(r.value)
-                      ? formData.roles.filter(x => x !== r.value)
-                      : [...formData.roles, r.value],
-                  })}
-                />
-                {r.label}
-              </label>
-            ))}
-          </div>
-        </details>
-
-        {error && <p>{error}</p>}
-        <button className='submit' type='submit' disabled={loading}>
-          {loading ? 'Ekleniyor...' : 'Kaydet'}
-        </button>
-      </form>
+      )}
 
       {editingUser && (
         <div className='edit-box'>
@@ -171,7 +108,7 @@ function Users() {
         <div className='stats'>
           <div className='stat-card'
             onClick={() => setSelectedRole(null)}>
-            <strong>Toplam Kullanıcı: {stats.totalUsers}</strong>
+            <strong>{stats.totalUsers}</strong><span>Toplam Kullanıcı</span>
           </div>
           {stats.byRole.map(r => (
             <div
@@ -186,8 +123,14 @@ function Users() {
         </div>
       )}
 
-      <ul className='user-list'>
+      <div className='list-header'>
         <h3>Kullanıcı Listesi</h3>
+        <button className='add-user' onClick={() => setShowAdd(true)}>
+          Kullanıcı Ekle
+        </button>
+      </div>
+
+      <ul className='user-list'>
         {visibleUsers.map(user => (
           <li key={user.id}>
             <strong>{user.name}</strong>
@@ -196,7 +139,7 @@ function Users() {
             <button className='delete' type='button' onClick={() => handleDelete(user)}>Sil</button>
             <button className='delete' type='button' onClick={() => handleEdit(user)}>Düzenle</button>
           </li>
-        ))}
+        ))}  
       </ul>
     </div>
   )

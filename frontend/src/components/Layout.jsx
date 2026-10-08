@@ -29,12 +29,16 @@ function Layout() {
   const { theme, toggleTheme } = useTheme()
   const { pathname } = useLocation()
   const [unread, setUnread] = useState(0)
+  const [unreadNotify, setUnreadNotify] = useState(0)
   const [echo, setEcho] = useState(null)
   const pathRef = useRef(pathname)
   pathRef.current = pathname
 
   const fetchUnread = () =>
     api.get('/chat/unread').then(r => setUnread(r.data.count))
+
+  const fetchUnreadNotify = () =>
+  api.get('/notifications/unread-count').then(r => setUnreadNotify(r.data.count))
 
 
   useEffect(()=> {
@@ -56,6 +60,10 @@ function Layout() {
     return() => {api.post('/chat/read')}
   }, [pathname])
 
+  useEffect(() => {
+    fetchUnreadNotify()
+  }, [pathname])
+
   const handleLogout = async () => {
     try {
       await api.post('/logout')
@@ -68,7 +76,7 @@ function Layout() {
     <>
       <div style={{ position: 'fixed', top: 24, left: 0 }}>
         <LineSidebar 
-          badges={[0, 0, 0, unread, 0, 0]}
+          badges={[0, 0, 0, unread, unreadNotify, 0, 0]}
           fontSize={1.5}
           icons={icons}
           textColor="var(--text)"
@@ -82,7 +90,7 @@ function Layout() {
       <button className='theme-toggle' type='button' onClick={toggleTheme}>
         {theme === 'dark' ? <GoSun /> : <FaMoon />}
       </button>
-      <Outlet context={{echo}} />
+      <Outlet context={{echo, refreshNotify: fetchUnreadNotify}} />
     </>
   )
 }

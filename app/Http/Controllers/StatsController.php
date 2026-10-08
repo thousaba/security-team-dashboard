@@ -22,4 +22,5 @@ class StatsController extends Controller
             'totalUsers' => User::count(),
         ]);
     }
+
 }

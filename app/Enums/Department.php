@@ -6,18 +6,22 @@ namespace App\Enums;
 
 enum Department: string
 {
-    case SocThreatHunting = 'detection_engineering';
-    case HumanResources = 'human_resources';
-    case Developer = 'software_developing'; 
-    case Malware = 'malware_analysis';
+    case System = 'system_manager';
+    case Soc = 'soc';
+    case ThreatIntel = 'threat_intelligence';
+    case DetectionEngineering = 'detection_engineering';
+    case MalwareForensics = 'malware_analysis';
+    case Grc = 'grc';
 
     public function label(): string
     {
         return match($this) {
-            self::SocThreatHunting => 'SIEM & Detection Engineering',
-            self::HumanResources => 'Human Resources',
-            self::Developer => 'Software Developing',
-            self::Malware => 'Malware Analysis'
+            self::System => 'Sistem Yöneticisi',
+            self::Soc => 'Güvenlik Operasyon Merkezi (SOC)',
+            self::ThreatIntel => 'Tehdit İstihbaratı ve Avcılığı',
+            self::DetectionEngineering => 'Tespit Mühendisliği',
+            self::MalwareForensics => 'Zararlı Yazılım ve Adli Bilişim',
+            self::Grc => 'Yönetişim, Risk ve Uyum (GRC)',
         };
     }
 }

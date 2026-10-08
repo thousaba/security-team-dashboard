@@ -25,6 +25,8 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::post('/chat', [MessageController::class, 'store']);
   Route::get('/chat/unread', [MessageController::class, 'unread']);
   Route::post('/chat/read', [MessageController::class, 'read']);
+  Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+
 
 
 
